@@ -3,13 +3,13 @@
 @using Microsoft.EntityFrameworkCore
 @inject ScheduleContext Context
 
-<h1>Classes</h1>
+<h3>Classes</h3>
 <hr/>
 <RadzenGrid EmptyText="No classes" Data="_classes" TItem="Class">
     <Columns>
         <RadzenGridColumn TItem="Class" Property="Type" Title="Type">
             <Template Context="class_">
-                @nameof(class_.Type)
+                @class_.Type.ToString()
             </Template>
         </RadzenGridColumn>
         <RadzenGridColumn TItem="Class" Property="Teacher" Title="Teacher">
