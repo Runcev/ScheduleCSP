@@ -6,8 +6,8 @@ namespace Schedule.DAL.Entities
     public class Class : Entity
     {
         public ClassType Type { get; set; }
-        public Day Day { get; set; }
-        public int Number { get; set; }
+        public Day? Day { get; set; }
+        public int? Number { get; set; }
         
         public int TeacherId { get; set; }
         public Teacher Teacher { get; set; }
