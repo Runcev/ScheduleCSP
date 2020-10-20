@@ -1,0 +1,49 @@
+﻿@using Schedule.DAL.Context
+@using Schedule.DAL.Entities
+@using Microsoft.EntityFrameworkCore
+@inject ScheduleContext Context
+
+<h1>Classes</h1>
+<hr/>
+<RadzenGrid EmptyText="No classes" Data="_classes" TItem="Class">
+    <Columns>
+        <RadzenGridColumn TItem="Class" Property="Type" Title="Type">
+            <Template Context="class_">
+                @nameof(class_.Type)
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="Teacher" Title="Teacher">
+            <Template Context="class_">
+                @class_.Teacher.Name
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="Auditory" Title="Auditory">
+            <Template Context="class_">
+                @class_.Auditory.Number
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="Subject" Title="Subject">
+            <Template Context="class_">
+                @class_.Subject.Name
+            </Template>
+        </RadzenGridColumn>
+    </Columns>
+</RadzenGrid>
+
+@code {
+
+    [Parameter]
+    public int SubjectId { get; set; }
+
+    private List<Class> _classes;
+
+    protected override void OnInitialized()
+    {
+        _classes = Context.Subjects
+            .Include(s => s.Classes).ThenInclude(c => c.Teacher)
+            .Include(s => s.Classes).ThenInclude(c => c.Auditory)
+            .Include(s => s.Classes).ThenInclude(c => c.Subject)
+            .First(s => s.Id == SubjectId).Classes;
+    }
+
+}

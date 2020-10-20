@@ -4,15 +4,26 @@
 @using Microsoft.EntityFrameworkCore
 @inject ScheduleContext Context
 
-<p>@Student.Name @Student.Specialty.Name</p>
+<h1>Students</h1>
+<hr/>
+<RadzenGrid EmptyText="No students" Data="_students" TItem="Student">
+    <Columns>
+        <RadzenGridColumn TItem="Student" Property="Name" Title="Name"/>
+        <RadzenGridColumn TItem="Student" Property="Specialty" Title="Specialty">
+            <Template Context="student">
+                @student.Specialty.Name
+            </Template>
+        </RadzenGridColumn>
+    </Columns>
+</RadzenGrid>
 
 @code {
 
-    public Student Student { get; set; }
+    private List<Student> _students;
 
     protected override void OnInitialized()
     {
-        Student = Context.Students.Include(s => s.Specialty).First(s => s.Name == "V");
+        _students = Context.Students.Include(s => s.Specialty).OrderBy(s => s.Specialty.Name).ToList();
     }
 
 }

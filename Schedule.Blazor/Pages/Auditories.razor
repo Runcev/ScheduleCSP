@@ -1,0 +1,25 @@
+﻿@page "/auditories"
+@using Schedule.DAL.Context
+@using Schedule.DAL.Entities
+@using Microsoft.EntityFrameworkCore
+@inject ScheduleContext Context
+
+<h1>Auditories</h1>
+<hr/>
+<RadzenGrid EmptyText="No auditories" Data="_auditories" TItem="Auditory">
+    <Columns>
+        <RadzenGridColumn TItem="Auditory" Property="Number" Title="Number"/>
+        <RadzenGridColumn TItem="Auditory" Property="Capacity" Title="Capacity"/>
+    </Columns>
+</RadzenGrid>
+
+@code {
+
+    private List<Auditory> _auditories;
+
+    protected override void OnInitialized()
+    {
+        _auditories = Context.Auditories.OrderBy(a => a.Number).ToList();
+    }
+
+}
