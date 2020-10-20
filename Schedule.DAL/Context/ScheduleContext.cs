@@ -13,15 +13,12 @@ namespace Schedule.DAL.Context
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
 
-        public ScheduleContext(DbContextOptions<ScheduleContext> options) : base(options){}
+        public ScheduleContext(DbContextOptions<ScheduleContext> options) : base(options)
+        {
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Seed();
         }
-        
-        
     }
-    
-    
 }
