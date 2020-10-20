@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Schedule.Data;
+using Schedule.Blazor.Data;
 
-namespace Schedule
+namespace Schedule.Blazor
 {
     public class Startup
     {
