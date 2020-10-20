@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Radzen;
 using Schedule.DAL.Context;
+using Schedule.DAL.Entities;
 
 namespace Schedule.Blazor
 {
@@ -54,6 +56,34 @@ namespace Schedule.Blazor
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+            SeedDatabase(app);
+        }
+
+        private static void SeedDatabase(IApplicationBuilder app)
+        {
+            using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+            using var context = scope.ServiceProvider.GetRequiredService<ScheduleContext>();
+                
+            context.Database.EnsureCreated();
+            
+            var specialty1 = new Specialty
+            {
+                Name = "CS-1",
+                // Students = new List<Student> {student1}
+            };
+            
+            var student1 = new Student
+            {
+                Name = "V",
+                Specialty = specialty1
+            };
+
+
+            context.Students.Add(student1);
+            context.Specialties.Add(specialty1);
+                
+            context.SaveChanges();
         }
     }
 }

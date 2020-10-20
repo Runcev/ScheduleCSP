@@ -19,6 +19,8 @@ namespace Schedule.DAL.Context
         {
             modelBuilder.Seed();
         }
+        
+        
     }
     
     

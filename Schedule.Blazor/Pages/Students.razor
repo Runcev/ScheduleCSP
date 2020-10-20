@@ -1,6 +1,7 @@
 ﻿@page "/students"
 @using Schedule.DAL.Context
 @using Schedule.DAL.Entities
+@using Microsoft.EntityFrameworkCore
 @inject ScheduleContext Context
 
 <p>@Student.Name @Student.Specialty.Name</p>
@@ -9,9 +10,9 @@
 
     public Student Student { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Student = await Context.Students.FindAsync(1);
+        Student = Context.Students.Include(s => s.Specialty).First(s => s.Name == "V");
     }
 
 }
