@@ -8,5 +8,8 @@ namespace Schedule.DAL.Entities
         public string Name { get; set; }
         
         public List<Class> Classes { get; set; }
+        
+        public int SpecialtyId { get; set; }
+        public Specialty Specialty { get; set; }
     }
 }

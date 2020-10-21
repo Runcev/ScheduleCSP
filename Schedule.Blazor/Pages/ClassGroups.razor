@@ -1,0 +1,27 @@
+﻿@using Schedule.DAL.Context
+@using Schedule.DAL.Entities
+@using Microsoft.EntityFrameworkCore
+@inject ScheduleContext Context
+
+<h3>Groups</h3>
+<hr/>
+<RadzenGrid EmptyText="No students" Data="_groups" TItem="Group">
+    <Columns>
+        <RadzenGridColumn TItem="Group" Property="Number" Title="Number"/>
+        <RadzenGridColumn TItem="Group" Property="Count" Title="Count"/>
+    </Columns>
+</RadzenGrid>
+
+@code {
+    
+    [Parameter]
+    public int ClassId { get; set; }
+
+    private List<Group> _groups;
+
+    protected override void OnInitialized()
+    {
+        _groups = Context.Classes.Include(c => c.Groups).First(c => c.Id == ClassId).Groups;
+    }
+
+}

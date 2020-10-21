@@ -6,6 +6,9 @@
 <h3>Classes</h3>
 <hr/>
 <RadzenGrid EmptyText="No classes" Data="_classes" TItem="Class">
+    <Template Context="class_">
+        <ClassGroups ClassId="@class_.Id"/>
+    </Template>
     <Columns>
         <RadzenGridColumn TItem="Class" Property="Type" Title="Type">
             <Template Context="class_">

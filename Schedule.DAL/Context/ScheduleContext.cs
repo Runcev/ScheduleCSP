@@ -8,8 +8,7 @@ namespace Schedule.DAL.Context
         public DbSet<Auditory> Auditories { get; set; }
         public DbSet<Class> Classes { get; set; }
         public DbSet<Specialty> Specialties { get; set; }
-        public DbSet<Student> Students { get; set; }
-        public DbSet<StudentClass> StudentClasses { get; set; }
+        public DbSet<Group> Groups { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
 
