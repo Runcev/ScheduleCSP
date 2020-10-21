@@ -7,7 +7,5 @@ namespace Schedule.DAL.Enums
         Wed,
         Thu,
         Fri,
-        Sat,
-        Sun
     }
 }

@@ -71,7 +71,8 @@ namespace Schedule.Blazor
             var specialty11 = new Specialty
             {
                 Name = "CS-1",
-                StudentCount = 23
+                StudentCount = 23,
+                
             };
             
             var specialty12 = new Specialty
@@ -83,7 +84,6 @@ namespace Schedule.Blazor
             var specialty21 = new Specialty
             {
                 Name = "SE-1",
-                
             };
             
             var specialty22 = new Specialty
@@ -100,7 +100,7 @@ namespace Schedule.Blazor
             var subject01 = new Subject()
             {
                 Name = "S",
-                Specialty = specialty11
+                
             };
             
             var auditory01 = new Auditory()
@@ -135,8 +135,11 @@ namespace Schedule.Blazor
             var class01 = new Class
             {
                 Type = ClassType.Lection,
-                Day = null,
-                Number = null,
+                DayTime = new DayTime
+                {
+                    Day = Day.Mon,
+                    Number = 1
+                },
                 Teacher = teacher01,
                 Auditory = auditory01,
                 Subject = subject01
