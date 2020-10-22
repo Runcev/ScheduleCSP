@@ -119,7 +119,7 @@ namespace Schedule.Genetic.Genetic
 			var childRepresentation = new List<A>();
 
 				childRepresentation.AddRange(x.Representation.GetRange(0, c));
-				childRepresentation.AddRange(y.Representation.GetRange(c, _individualLength));
+				childRepresentation.AddRange(y.Representation.GetRange(c, _individualLength - c));
 
 
 			return new Individual<A>(childRepresentation);
@@ -132,7 +132,7 @@ namespace Schedule.Genetic.Genetic
 
 			var mutatedRepresentation = new List<A>(child.Representation);
 
-			mutatedRepresentation.Insert(mutateOffset, _alphabet.ElementAt(alphaOffset));
+			mutatedRepresentation[mutateOffset] = _alphabet.ElementAt(alphaOffset);
 
 			return new Individual<A>(mutatedRepresentation);
 		}
