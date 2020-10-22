@@ -11,6 +11,7 @@ namespace Schedule.DAL.Context
         public DbSet<Group> Groups { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
+        public DbSet<DayTime> DayTimes { get; set; }
 
         public ScheduleContext(DbContextOptions<ScheduleContext> options) : base(options)
         {

@@ -623,8 +623,20 @@ namespace Schedule.Blazor
             class19.Groups = new List<Group> {groups.ElementAt(19)};
             class20.Groups = new List<Group> {groups.ElementAt(20)};
 
+            context.SaveChanges();
 
-            
+            for (int day = (int) Day.Mon; day < (int) Day.Fri; day++)
+            {
+                for (int number = 1; number <= 4; number++)
+                {
+                    context.DayTimes.Add(new DayTime
+                    {
+                        Day = (Day) day,
+                        Number = number
+                    });
+                }
+            }
+
             context.SaveChanges();
         }
     }
