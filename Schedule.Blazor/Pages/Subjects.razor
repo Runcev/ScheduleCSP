@@ -12,6 +12,11 @@
     </Template>
     <Columns>
         <RadzenGridColumn TItem="Subject" Property="Name" Title="Name"/>
+        <RadzenGridColumn TItem="Subject" Property="Specialty" Title="Specialty">
+            <Template Context="subject">
+                @subject.Specialty.Name
+            </Template>
+        </RadzenGridColumn>
     </Columns>
 </RadzenGrid>
 

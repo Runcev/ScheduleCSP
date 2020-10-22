@@ -6,9 +6,6 @@
 <h3>Classes</h3>
 <hr/>
 <RadzenGrid EmptyText="No classes" Data="_classes" TItem="Class">
-    <Template Context="class_">
-        <ClassGroups ClassId="@class_.Id"/>
-    </Template>
     <Columns>
         <RadzenGridColumn TItem="Class" Property="Type" Title="Type">
             <Template Context="class_">
@@ -25,9 +22,24 @@
                 @class_.Auditory.Number
             </Template>
         </RadzenGridColumn>
-        <RadzenGridColumn TItem="Class" Property="Subject" Title="Subject">
+        <RadzenGridColumn TItem="Class" Property="Group" Title="Group">
             <Template Context="class_">
-                @class_.Subject.Name
+                @class_.Group.Number
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="DayTime" Title="Day">
+            <Template Context="class_">
+                @class_.DayTime.Day.ToString()
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="DayTime" Title="Time">
+            <Template Context="class_">
+                @TimeToTime(class_.DayTime.Number)
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="Group" Title="Students">
+            <Template Context="class_">
+                @class_.Group.Count
             </Template>
         </RadzenGridColumn>
     </Columns>
@@ -42,11 +54,28 @@
 
     protected override void OnInitialized()
     {
-        _classes = Context.Subjects
-            .Include(s => s.Classes).ThenInclude(c => c.Teacher)
-            .Include(s => s.Classes).ThenInclude(c => c.Auditory)
-            .Include(s => s.Classes).ThenInclude(c => c.Subject)
-            .First(s => s.Id == SubjectId).Classes;
+        _classes = Context.Classes
+            .Include(c => c.Teacher)
+            .Include(c => c.Group)
+            .Include(c => c.Auditory)
+            .Include(c => c.Subject)
+            .Include(c => c.DayTime)
+            .Where(c => c.SubjectId == SubjectId).ToList();
+    }
+
+    private static string TimeToTime(int time)
+    {
+        return
+            time switch {
+                1 => "08:30",
+                2 => "10:00",
+                3 => "11:40",
+                4 => "13:30",
+                5 => "15:00",
+                6 => "16:30",
+                7 => "18:00",
+                _ => "NONE"
+                };
     }
 
 }
