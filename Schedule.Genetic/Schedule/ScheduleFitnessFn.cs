@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Schedule.DAL.Context;
 using Schedule.DAL.Entities;
 using Schedule.DAL.Enums;
@@ -10,13 +11,22 @@ namespace Schedule.Genetic.Schedule
 {
     public class ScheduleFitnessFn : IFitnessFn<(int auditoryId, int dayTimeId)>
     {
-        private readonly IList<Info> _infos;
+        public IList<Info> Infos { get; }
         private readonly ScheduleContext _context;
 
-        public ScheduleFitnessFn(IList<Info> info, ScheduleContext context)
+        public ScheduleFitnessFn(ScheduleContext context)
         {
-            _infos = info;
             _context = context;
+            Infos = GetInfos(context);
+        }
+
+        private Info[] GetInfos(ScheduleContext context)
+        {
+            return context.Classes
+                .Include(c => c.Group)
+                .Include(c => c.Teacher)
+                .Include(c => c.Subject)
+                .Select(c => new Info(c.Teacher, c.Group, c)).ToArray();
         }
 
         public double Apply(Individual<(int auditoryId, int dayTimeId)> individual)
@@ -42,13 +52,13 @@ namespace Schedule.Genetic.Schedule
 
             for (int i = 0; i < auditoryCapacities.Length; i++)
             {
-                if (_infos[i].Group.Count < auditoryCapacities[i])
+                if (Infos[i].Group.Count < auditoryCapacities[i])
                 {
                     validCount++;
                 }
             }
 
-            return Convert.ToDouble(individual.Length()) / validCount;
+            return validCount / Convert.ToDouble(individual.Length());
         }
 
         private double TeacherUniqueDayTimesCheck(Individual<(int auditoryId, int dayTimeId)> individual)
@@ -59,7 +69,7 @@ namespace Schedule.Genetic.Schedule
 
             foreach (var dayTimeTeacherPair in individual.Representation
                 .Select(p => p.dayTimeId)
-                .Zip(_infos.Select(info => info.Teacher.Id)))
+                .Zip(Infos.Select(info => info.Teacher.Id)))
             {
                 if (timesTeachers.Add(dayTimeTeacherPair))
                 {
@@ -71,7 +81,7 @@ namespace Schedule.Genetic.Schedule
                 }
             }
 
-            return Convert.ToDouble(individual.Length()) / validCount;
+            return validCount / Convert.ToDouble(individual.Length());
         }
 
         private double AuditoriesUniqueCheck(Individual<(int auditoryId, int dayTimeId)> individual)
@@ -92,14 +102,14 @@ namespace Schedule.Genetic.Schedule
                 }
             }
 
-            return Convert.ToDouble(individual.Length()) / validCount;
+            return validCount / Convert.ToDouble(individual.Length());
         }
 
         private double LectionsPracticesDontIntersectCheck(Individual<(int auditoryId, int dayTimeId)> individual)
         {
             var subjectTimes = new HashSet<(int subjectId, int dayTimeId)>();
 
-            var classes = _infos.Select(i => i.Class).ToArray();
+            var classes = Infos.Select(i => i.Class).ToArray();
 
             var validCount = 0;
 
@@ -109,7 +119,7 @@ namespace Schedule.Genetic.Schedule
 
                 if (@class.Type == ClassType.Lection)
                 {
-                    if (!subjectTimes.Add((@class.SubjectId, individual.Representation[i].dayTimeId)))
+                    if (subjectTimes.Add((@class.SubjectId, individual.Representation[i].dayTimeId)))
                     {
                         validCount++;
                     }
@@ -126,12 +136,22 @@ namespace Schedule.Genetic.Schedule
                     }
                     else
                     {
-                        validCount++;
+                        validCount--;
                     }
                 }
             }
 
-            return Convert.ToDouble(individual.Length()) / validCount;
+            return validCount / Convert.ToDouble(individual.Length());
+        }
+
+        public bool GoalTest(Individual<(int auditoryId, int dayTimeId)> individual)
+        {
+            const double eps = 1e-10;
+
+            return Math.Abs(AuditoriesUniqueCheck(individual) - 1) < eps
+                   && Math.Abs(AuditoryCapacityCheck(individual) - 1) < eps
+                   && Math.Abs(TeacherUniqueDayTimesCheck(individual) - 1) < eps
+                   && Math.Abs(LectionsPracticesDontIntersectCheck(individual) - 1) < eps;
         }
     }
 }
