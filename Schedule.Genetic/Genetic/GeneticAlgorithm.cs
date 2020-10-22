@@ -20,7 +20,6 @@ namespace Schedule.Genetic.Genetic
 			_individualLength = individualLength;
 			_alphabet = new List<A>(finiteAlphabet);
 			_probability = mutationProbability;
-
 		}
 
 		public Individual<A> Algorithm(List<Individual<A>> initPopulation,

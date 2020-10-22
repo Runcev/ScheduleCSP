@@ -1,5 +1,37 @@
 ﻿@page "/"
+@using Schedule.Genetic.Genetic
+@using Schedule.DAL.Context
+@using Schedule.Genetic.Schedule
+@inject ScheduleContext Context
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+@code {
+
+
+    protected override void OnInitialized()
+    {
+        var alphabet = new List<(int auditoryId, int dayTimeId)>();
+
+        foreach (var dayTime in Context.DayTimes)
+        {
+            foreach (var auditory in Context.Auditories)
+            {
+                alphabet.Add((auditory.Id, dayTime.Id));
+            }
+        }
+
+        var genetic = new GeneticAlgorithm<(int auditoryId, int dayTimeId)>(Context.Classes.Count(), alphabet, 0.05);
+
+        genetic.Algorithm(new List<Individual<(int auditoryId, int dayTimeId)>>
+        {
+            new Individual<(int auditoryId, int dayTimeId)>(new List<(int auditoryId, int dayTimeId)>
+            {
+                (1, 1), (1, 2)
+            }),
+        }, new ScheduleFitnessFn(), )
+    }
+
+}

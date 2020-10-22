@@ -11,6 +11,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Schedule.DAL\Schedule.DAL.csproj" />
+      <ProjectReference Include="..\Schedule.Genetic\Schedule.Genetic.csproj" />
     </ItemGroup>
 
 </Project>
