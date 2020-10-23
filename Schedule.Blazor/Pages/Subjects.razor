@@ -26,7 +26,10 @@
 
     protected override void OnInitialized()
     {
-        _subjects = Context.Subjects.Include(s => s.Classes).OrderBy(s => s.Name).ToList();
+        _subjects = Context.Subjects
+            .Include(s => s.Classes)
+            .Include(s => s.Specialty)
+            .OrderBy(s => s.Name).ToList();
     }
 
 }
