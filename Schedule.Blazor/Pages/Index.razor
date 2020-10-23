@@ -4,123 +4,68 @@
 @using Schedule.DAL.Entities
 @using Schedule.Genetic.Schedule
 @using Microsoft.EntityFrameworkCore
+@using Schedule.Blazor.Services
 @inject ScheduleContext Context
+@inject ScheduleService Service
 
-<h1>Hello, world!</h1>
-Welcome to your new app.
-<hr/>
-<RadzenGrid Data="_classes" TItem="Class">
-    <Columns>
-        <RadzenGridColumn TItem="Class" Property="DayTime" Title="Day">
-            <Template Context="class_">
-                @class_.DayTime.Day.ToString()
-            </Template>
-        </RadzenGridColumn>
-        <RadzenGridColumn TItem="Class" Property="DayTime" Title="Time">
-            <Template Context="class_">
-                @TimeToTime(class_.DayTime.Number)
-            </Template>
-        </RadzenGridColumn>
-        <RadzenGridColumn TItem="Class" Property="Group" Title="Group">
-            <Template Context="class_">
-                @class_.Group.Number
-            </Template>
-        </RadzenGridColumn>
-        <RadzenGridColumn TItem="Class" Property="Subject" Title="Specialty">
-            <Template Context="class_">
-                @class_.Subject.Specialty.Name
-            </Template>
-        </RadzenGridColumn>
-        <RadzenGridColumn TItem="Class" Property="Subject" Title="Subject">
-            <Template Context="class_">
-                @class_.Subject.Name
-            </Template>
-        </RadzenGridColumn>
-        <RadzenGridColumn TItem="Class" Property="Teacher" Title="Teacher">
-            <Template Context="class_">
-                @class_.Teacher.Name
-            </Template>
-        </RadzenGridColumn>
-        <RadzenGridColumn TItem="Class" Property="Auditory" Title="Auditory">
-            <Template Context="class_">
-                @class_.Auditory.Number
-            </Template>
-        </RadzenGridColumn>
-        <RadzenGridColumn TItem="Class" Property="Type" Title="Type">
-            <Template Context="class_">
-                @class_.Type.ToString()
-            </Template>
-        </RadzenGridColumn>
-    </Columns>
-</RadzenGrid>
+<h1>Schedule</h1>
+<RadzenButton Click="@(async () => await LoadClasses())" Text="Calculate Schedule" Style="display:block; width: 200px; height: 80px; margin: 0 auto;"/>
+@if (_classes != null)
+{
+    <hr/>
+    <RadzenGrid Data="_classes" TItem="Class">
+        <Columns>
+            <RadzenGridColumn TItem="Class" Property="DayTime" Title="Day">
+                <Template Context="class_">
+                    @class_.DayTime.Day.ToString()
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="DayTime" Title="Time">
+                <Template Context="class_">
+                    @TimeToTime(class_.DayTime.Number)
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Group" Title="Group">
+                <Template Context="class_">
+                    @class_.Group.Number
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Subject" Title="Specialty">
+                <Template Context="class_">
+                    @class_.Subject.Specialty.Name
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Subject" Title="Subject">
+                <Template Context="class_">
+                    @class_.Subject.Name
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Teacher" Title="Teacher">
+                <Template Context="class_">
+                    @class_.Teacher.Name
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Auditory" Title="Auditory">
+                <Template Context="class_">
+                    @class_.Auditory.Number
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Type" Title="Type">
+                <Template Context="class_">
+                    @class_.Type.ToString()
+                </Template>
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+}
 
 @code {
 
-    private static readonly Random Rng = new Random();
-
     private IEnumerable<Class> _classes;
 
-    protected override void OnInitialized()
+    private async Task LoadClasses()
     {
-        var alphabet = new List<(int auditoryId, int dayTimeId)>();
-
-        foreach (var dayTime in Context.DayTimes)
-        {
-            foreach (var auditory in Context.Auditories)
-            {
-                alphabet.Add((auditory.Id, dayTime.Id));
-            }
-        }
-
-        var individualLength = Context.Classes.Count();
-
-        var genetic = new GeneticAlgorithm<(int auditoryId, int dayTimeId)>(individualLength, alphabet, 0.05);
-        var fitnessFn = new ScheduleFitnessFn(Context);
-
-        var schedule = genetic.Algorithm(RandomInitialPopulation(100, individualLength), fitnessFn, fitnessFn.GoalTest);
-
-        var classes = fitnessFn.Infos.Select(i => i.Class).ToArray();
-
-        for (int i = 0; i < classes.Count(); i++)
-        {
-            classes[i].AuditoryId = schedule.Representation[i].auditoryId;
-            classes[i].DayTimeId = schedule.Representation[i].dayTimeId;
-        }
-
-        Context.SaveChanges();
-
-        _classes = Context.Classes
-            .Include(c => c.Auditory)
-            .Include(c => c.Group)
-            .Include(c => c.Teacher)
-            .Include(c => c.DayTime)
-            .Include(c => c.Subject)
-            .ThenInclude(s => s.Specialty)
-            .OrderBy(c => c.DayTime.Day).ThenBy(c => c.DayTime.Number);
-    }
-
-    private List<Individual<(int auditoryId, int dayTimeId)>> RandomInitialPopulation(int count, int individualLength)
-    {
-        var auditoryIds = Context.Auditories.Select(a => a.Id).ToArray();
-        var dayTimeIds = Context.DayTimes.Select(dt => dt.Id).ToArray();
-
-        (int auditoryId, int dayTimeId) GetRandomPair() => (auditoryIds[Rng.Next(auditoryIds.Length)], dayTimeIds[Rng.Next(dayTimeIds.Length)]);
-
-        var population = new List<Individual<(int auditoryId, int dayTimeId)>>();
-
-        for (int i = 0; i < count; i++)
-        {
-            var individuals = new List<(int auditoryId, int dayTimeId)>();
-
-            for (int j = 0; j < individualLength; j++)
-            {
-                individuals.Add(GetRandomPair());
-            }
-
-            population.Add(new Individual<(int auditoryId, int dayTimeId)>(individuals));
-        }
-
-        return population;
+        _classes = await Service.Classes();
     }
 
     private static string TimeToTime(int time)
