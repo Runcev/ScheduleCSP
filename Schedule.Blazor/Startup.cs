@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Radzen;
+using Schedule.Blazor.Services;
 using Schedule.DAL.Context;
 using Schedule.DAL.Entities;
 using Schedule.DAL.Enums;
@@ -31,6 +32,8 @@ namespace Schedule.Blazor
 
             services.AddScoped<NotificationService>();
 
+            services.AddScoped<ScheduleService>();
+            
             services.AddDbContext<ScheduleContext>(opt => opt.UseInMemoryDatabase("Schedule"));
         }
 
