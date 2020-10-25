@@ -4,6 +4,18 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+
+#main>h2{
+    margin: 0 auto;
+    width: 40%;
+    color: #1f496f;
+}
+#main>p{
+    margin: 0 auto;
+    width: 55%;
+    color: #1f496f;
+}
+
 a, .btn-link {
     color: #0366d6;
 }

@@ -432,43 +432,15 @@ namespace Schedule.Blazor
             context.Specialties.Add(specialty22);
 
             context.SaveChanges();
-
-            var group1 = new Group
-            {
-                Number = 1
-            };
-            var group2 = new Group
-            {
-                Number = 2
-            };
-            var group3 = new Group
-            {
-                Number = 3
-            };
-            var group4 = new Group
-            {
-                Number = 4
-            };
-            var group5 = new Group
-            {
-                Number = 5,
-            };
-
+            
             var groups = new List<Group>();
 
-            for (int i = 0; i < 50; i++)
+            for (var i = 0; i < 50; i++)
             {
                 groups.Add(new Group {Number = i});
                 context.Groups.Add(groups.ElementAt(i));
             }
-
-
-            context.Groups.Add(group1);
-            context.Groups.Add(group2);
-            context.Groups.Add(group3);
-            context.Groups.Add(group4);
-            context.Groups.Add(group5);
-
+            
 
             var class01 = new Class
             {
@@ -502,7 +474,7 @@ namespace Schedule.Blazor
 
             var class06 = new Class
             {
-                Type = ClassType.Practice,
+                Type = ClassType.Lection,
                 Teacher = teacher09,
             };
 
@@ -658,9 +630,9 @@ namespace Schedule.Blazor
             subject16.AddClass(class16);
             subject16.AddClass(class18);
 
-            for (int day = (int) Day.Mon; day < (int) Day.Sat; day++)
+            for (var day = (int) Day.Mon; day < (int) Day.Sat; day++)
             {
-                for (int number = 1; number <= 6; number++)
+                for (var number = 1; number <= 6; number++)
                 {
                     context.DayTimes.Add(new DayTime
                     {
