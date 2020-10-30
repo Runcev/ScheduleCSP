@@ -8,10 +8,10 @@ namespace Schedule.CSP.CSP
 {
     public class FlexibleBacktrackingSolver<Var, Val> where Var : Variable
     {
-        private CspHeuristics.IVariableSelectionStrategy<Var, Val> VariableSelectionStrategy { get; set; }
-        private CspHeuristics.IValueOrderingStrategy<Var, Val> ValueOrderingStrategy { get; set; }
-        private IInferenceStrategy<Var, Val> InferenceStrategy { get; set; }
-        
+        public CspHeuristics.IVariableSelectionStrategy<Var, Val> VariableSelectionStrategy { get; set; }
+        public CspHeuristics.IValueOrderingStrategy<Var, Val> ValueOrderingStrategy { get; set; }
+        public IInferenceStrategy<Var, Val> InferenceStrategy { get; set; }
+
         public Assignment<Var, Val> Solve(CSP<Var, Val> csp)
         {
             if (InferenceStrategy != null)
@@ -26,7 +26,40 @@ namespace Schedule.CSP.CSP
                 }
             }
 
-            return null;
+            return Backtrack(csp, new Assignment<Var, Val>());
+        }
+
+        private Assignment<Var, Val> Backtrack(CSP<Var, Val> csp, Assignment<Var, Val> assignment)
+        {
+            if (assignment.IsComplete(csp.Variables))
+            {
+                return assignment;
+            }
+            
+            Assignment<Var, Val> result = null;
+
+            var var = SelectUnassignedVariable(csp, assignment);
+
+            foreach (var value in OrderDomainValues(csp, assignment, var))
+            {
+                assignment.Add(var, value);
+                if (assignment.IsConsistent(csp.GetConstraints(var)))
+                {
+                    var log = Inference(csp, assignment, var);
+                    if (!log.IsConsistencyFound())
+                    {
+                        result = Backtrack(csp, assignment);
+                        if (result != null)
+                        {
+                            break;
+                        }
+                    }
+                    log.Undo(csp);
+                }
+                assignment.Remove(var);
+            }
+
+            return result;
         }
 
         private Var SelectUnassignedVariable(CSP<Var, Val> csp, Assignment<Var, Val> assigment)
