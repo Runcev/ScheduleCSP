@@ -12,9 +12,19 @@ namespace Schedule.CSP.CSP
             Name = name;
         }
         
+        public static bool operator ==(Variable var1, Variable var2)
+        {
+            return var1?.Name == var2?.Name;
+        }
+        
+        public static bool operator !=(Variable var1, Variable var2)
+        {
+            return !(var1 == var2);
+        }
+
         public override bool Equals(object obj)
         {
-            if (obj == this)
+            if (ReferenceEquals(obj, this))
             {
                 return true;
             }
