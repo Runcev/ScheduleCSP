@@ -11,19 +11,20 @@ namespace Schedule.CSP.CSP
 
         public IEnumerable<Var> GetVariables()
         {
-            return new List<Var>(_variableToValueMap.Keys);
+            return _variableToValueMap.Keys;
         }
 
         public Val GetValue(Var var)
         {
-            return _variableToValueMap[var];
+            _variableToValueMap.TryGetValue(var, out var val);
+            return val;
         }
 
         public void Add(Var var, Val value)
         {
             if (value != null)
             {
-                _variableToValueMap.Add(var, value);
+                _variableToValueMap.TryAdd(var, value);
             }
         }
 
@@ -39,7 +40,7 @@ namespace Schedule.CSP.CSP
 
         public bool IsConsistent(IEnumerable<IConstraint<Var, Val>> constraints)
         {
-            return constraints.All(c => c.isSatisfiedWith(this));
+            return constraints.All(c => c.IsSatisfiedWith(this));
         }
 
         public bool IsComplete(IEnumerable<Var> vars)
@@ -49,7 +50,7 @@ namespace Schedule.CSP.CSP
 
         public bool IsSolution(CSP<Var, Val> csp)
         {
-            return IsConsistent(csp.GetContraints()) && IsComplete(csp.GetVariables());
+            return IsConsistent(csp.Constraints) && IsComplete(csp.Variables);
         }
     }
 }
