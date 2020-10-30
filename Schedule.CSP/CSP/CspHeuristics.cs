@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -27,28 +28,38 @@ namespace Schedule.CSP.CSP
             return new DegHeuristic<Var, Val>();
         }
         
-        public static IVariableSelectionStrategy<Var, Val> MrvDeg<Var, Val>() where Var : Variable
+        public static IVariableSelectionStrategy<Var, Val> MrvDeg<Var, Val>(CSP<Var,Val> csp, List<Var> vars) where Var : Variable
         {
-            return (csp, vars) =>
-                new DegHeuristic<Var, Val>().Apply(csp, new MrvHeuristic<Var, Val>().Apply(csp, vars));
+            return new MrvDegHeuristic<Var, Val>();
         }
         
         public static IValueOrderingStrategy<Var, Val> Lcv<Var, Val>() where Var : Variable
         {
             return new LcvHeuristic<Var, Val>();
         }
+
+        public class MrvDegHeuristic<Var, Val> : MrvHeuristic<Var, Val> where Var : Variable
+        {
+            private readonly DegHeuristic<Var, Val> _deg = new DegHeuristic<Var, Val>();
+            private readonly MrvHeuristic<Var, Val> _mrv = new MrvHeuristic<Var, Val>();
+            
+            public override IEnumerable<Var> Apply(CSP<Var, Val> csp, IEnumerable<Var> vars)
+            {
+                return _deg.Apply(csp, _mrv.Apply(csp, vars));
+            }
+        }
         
 
         public class MrvHeuristic<Var, Val> : IVariableSelectionStrategy<Var, Val> where Var : Variable
         {
-            public IEnumerable<Var> Apply(CSP<Var, Val> csp, IEnumerable<Var> vars)
+            public virtual IEnumerable<Var> Apply(CSP<Var, Val> csp, IEnumerable<Var> vars)
             {
                 var result = new List<Var>();
                 
                 var minValues = int.MaxValue;
                 foreach (var var in vars)
                 {
-                    var values = csp.GetDomain(var).Count;
+                    var values = csp.GetDomain(var).Count();
                     if (values < minValues)
                     {
                         result.Clear();
@@ -74,7 +85,7 @@ namespace Schedule.CSP.CSP
                 var maxDegree = -1;
                 foreach (var var in vars)
                 {
-                    var degree = csp.GetConstraint(var).Count;
+                    var degree = csp.GetConstraints(var).Count();
                     if (degree > maxDegree)
                     {
                         result.Clear();
@@ -99,34 +110,33 @@ namespace Schedule.CSP.CSP
                 foreach (Val value in csp.GetDomain(var))
                 {
                     var num = CountLostValues(csp, assignment, var, value);
-                    pairs.Add(new KeyValuePair<value, num>());
+                    pairs.Add(new KeyValuePair<Val, int>(value, num));
                 }
 
                 return pairs.OrderBy(p => p.Value).Select(p => p.Key);
             }
-        }
-        
-        private int CountLostValues(CSP<Var, Val> csp, Assignment<Var, Val> assignment, Var var, Val value) {
-            var result = 0;
-            Assignment<Var, Val> assign = new Assignment<Var,Val>();
-            assign.Add(var, value);
-            foreach (var constraint in csp.GetConstraints(var))
-            {
-                if (constraint.GetScope().size() == 2) {
-                    Var neighbor = csp.getNeighbor(var, constraint);
-                    if (!assignment.Contains(neighbor))
-                        foreach (var val in csp.GetDomain(neighbor))
-                        {
-                            assign.Add(neighbor, val);
-                            if (!constraint.IsSatisdiedWith(assign))
+            
+            private static int CountLostValues(CSP<Var, Val> csp, Assignment<Var, Val> assignment, Var var, Val value) {
+                var result = 0;
+                var assign = new Assignment<Var,Val>();
+                assign.Add(var, value);
+                foreach (var constraint in csp.GetConstraints(var))
+                {
+                    if (constraint.GetScope().Count() == 2) {
+                        Var neighbor = csp.GetNeighbor(var, constraint);
+                        if (!assignment.Contains(neighbor))
+                            foreach (var val in csp.GetDomain(neighbor))
                             {
-                                ++result;
+                                assign.Add(neighbor, val);
+                                if (!constraint.IsSatisfiedWith(assign))
+                                {
+                                    ++result;
+                                }
                             }
-                        }
+                    }
                 }
+                return result;
             }
-            return result;
         }
-
     }
 }
