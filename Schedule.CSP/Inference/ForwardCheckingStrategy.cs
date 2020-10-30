@@ -1,13 +1,14 @@
 ﻿using System.Data;
+using System.Linq;
 using Schedule.CSP.CSP;
 
 namespace Schedule.CSP.Inference
 {
     public class ForwardCheckingStrategy<Var,Val> : IInferenceStrategy<Var, Val> where Var : Variable
     {
-        public IInferenceLog<Var, Val> Apply(CSP csp)
+        public IInferenceLog<Var, Val> Apply(CSP<Var, Val> csp)
         {
-            return IInferenceLog<Var, Val>.EmptyLog<Var, Val>();
+            return new EmptyLog<Var, Val>();
         }
 
         public IInferenceLog<Var, Val> Apply(CSP<Var, Val> csp, Assignment<Var, Val> assignment, Var var)
@@ -20,7 +21,7 @@ namespace Schedule.CSP.Inference
                 {
                     if (Revise(neighbor, constraint, assignment, csp, log))
                     {
-                        if (csp.GetDomain(neighbor).IsEmpty)
+                        if (!csp.GetDomain(neighbor).Any())
                         {
                             log.SetEmptyDomainFound(true);
                             return log;
@@ -32,7 +33,7 @@ namespace Schedule.CSP.Inference
         }
 
 
-        private bool Revise(Var var, Constraint<Var, Val> constraint, Assignment<Var, Val> assignment,
+        private bool Revise(Var var, IConstraint<Var, Val> constraint, Assignment<Var, Val> assignment,
             CSP<Var, Val> csp, DomainLog<Var, Val> log)
         {
             bool revised = false;

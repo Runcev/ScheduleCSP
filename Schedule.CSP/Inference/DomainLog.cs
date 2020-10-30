@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Schedule.CSP.CSP;
 
 namespace Schedule.CSP.Inference
 {
     public class DomainLog<Var, Val> : IInferenceLog<Var, Val> where Var : Variable
     {
-        private List<KeyValuePair<Var, Domain<Val>>> _savedDomain;
+        private readonly List<KeyValuePair<Var, Domain<Val>>> _savedDomain;
         private HashSet<Var> _affectedVariables;
         private bool _emptyDomainObserved;
 
@@ -44,12 +45,12 @@ namespace Schedule.CSP.Inference
 
         public bool IsEmpty()
         {
-            return _savedDomain.IsEmpty();
+            return !_savedDomain.Any();
         }
 
         public void Undo(CSP<Var, Val> csp)
         {
-            _savedDomain.ForEach(pair => csp.GetDomain(pair.));
+            _savedDomain.ForEach(pair => csp.SetDomain(pair.Key, pair.Value));
         }
 
         public bool IsConsistencyFound()

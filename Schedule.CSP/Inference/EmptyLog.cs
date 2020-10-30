@@ -2,7 +2,7 @@
 
 namespace Schedule.CSP.Inference
 {
-    public class InfLog : IInferenceLog<Var, Val> 
+    public class EmptyLog<Var, Val> : IInferenceLog<Var, Val> where Var : Variable
     {
         public bool IsEmpty()
         {
