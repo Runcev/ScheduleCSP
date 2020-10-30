@@ -7,22 +7,5 @@ namespace Schedule.CSP.Inference
         bool IsEmpty();
         bool IsConsistencyFound();
         void Undo(CSP<Var, Val> csp);
-
-        static IInferenceLog<Var, Val> EmptyLog<Var, Val>() where Var : Variable
-        {
-            return new 
-            public bool IsEmpty()
-            {
-                return true;
-            }
-
-            public bool IsConsistencyFound()
-            {
-                return false;
-            }   
-            
-            public void Undo(CSP<Var, Val> csp){ }
-
-        }
     }
 }

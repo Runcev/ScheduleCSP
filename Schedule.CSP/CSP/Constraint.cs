@@ -6,6 +6,6 @@ namespace Schedule.CSP.CSP
     {
         IEnumerable<Var> GetScope();
 
-        bool isSatisfiedWith(Assignment<Var, Val> assignment);
+        bool IsSatisfiedWith(Assignment<Var, Val> assignment);
     }
 }

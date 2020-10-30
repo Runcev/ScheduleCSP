@@ -4,7 +4,7 @@ using Schedule.CSP.CSP;
 
 namespace Schedule.CSP.Inference
 {
-    public class DomainLog<Var, Val> : IInferenceLog<Var, Val>
+    public class DomainLog<Var, Val> : IInferenceLog<Var, Val> where Var : Variable
     {
         private List<KeyValuePair<Var, Domain<Val>>> _savedDomain;
         private HashSet<Var> _affectedVariables;
@@ -49,7 +49,7 @@ namespace Schedule.CSP.Inference
 
         public void Undo(CSP<Var, Val> csp)
         {
-            _savedDomain
+            _savedDomain.ForEach(pair => csp.GetDomain(pair.));
         }
 
         public bool IsConsistencyFound()
