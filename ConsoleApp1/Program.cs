@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Schedule.CSP.CSP;
 using Schedule.CSP.Inference;
 
@@ -19,7 +20,7 @@ namespace ConsoleApp1
 
             var result = solver.Solve(csp);
 
-            Console.WriteLine(string.Join(", ", result.GetVariables()));
+            Console.WriteLine(string.Join("\n", result.GetVariableAndValues()));
         }
     }
 }

@@ -14,6 +14,8 @@ namespace Schedule.CSP.CSP
             return _variableToValueMap.Keys;
         }
 
+        public IEnumerable<(Var variable, Val value)> GetVariableAndValues() => _variableToValueMap.ToList().Select(kv => (_, _) = kv);
+
         public Val GetValue(Var var)
         {
             _variableToValueMap.TryGetValue(var, out var val);
