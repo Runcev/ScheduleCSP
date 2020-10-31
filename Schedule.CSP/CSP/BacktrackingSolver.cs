@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -6,10 +7,10 @@ using Schedule.CSP.Inference;
 
 namespace Schedule.CSP.CSP
 {
-    public class FlexibleBacktrackingSolver<Var, Val> where Var : Variable
+    public class BacktrackingSolver<Var, Val> where Var : Variable
     {
-        public CspHeuristics.IVariableSelectionStrategy<Var, Val> VariableSelectionStrategy { get; set; }
-        public CspHeuristics.IValueOrderingStrategy<Var, Val> ValueOrderingStrategy { get; set; }
+        public CSPHeuristics.IVariableSelectionStrategy<Var, Val> VariableSelectionStrategy { get; set; }
+        public CSPHeuristics.IValueOrderingStrategy<Var, Val> ValueOrderingStrategy { get; set; }
         public IInferenceStrategy<Var, Val> InferenceStrategy { get; set; }
 
         public Assignment<Var, Val> Solve(CSP<Var, Val> csp)

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Schedule.CSP.CSP
 {
-    public class CspHeuristics
+    public class CSPHeuristics
     {
         public interface IVariableSelectionStrategy<Var, Val> where Var : Variable
         {
