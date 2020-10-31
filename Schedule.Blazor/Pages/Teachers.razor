@@ -1,0 +1,24 @@
+﻿@page "/teachers"
+@using Schedule.DAL.Context
+@using Schedule.DAL.Entities
+@using Microsoft.EntityFrameworkCore
+@inject ScheduleContext Context
+
+<h1>Teachers</h1>
+<hr/>
+<RadzenGrid EmptyText="No teachers" Data="_teachers" TItem="Teacher">
+    <Columns>
+        <RadzenGridColumn TItem="Teacher" Property="Name" Title="Name"/>
+    </Columns>
+</RadzenGrid>
+
+@code {
+
+    private List<Teacher> _teachers;
+
+    protected override void OnInitialized()
+    {
+        _teachers = Context.Teachers.OrderBy(t => t.Name).ToList();
+    }
+
+}

@@ -1,0 +1,82 @@
+﻿@using Schedule.DAL.Context
+@using Schedule.DAL.Entities
+@using Microsoft.EntityFrameworkCore
+@inject ScheduleContext Context
+
+<h3>Classes</h3>
+<hr/>
+<RadzenGrid EmptyText="No classes" Data="_classes" TItem="Class">
+    <Columns>
+        <RadzenGridColumn TItem="Class" Property="Type" Title="Type">
+            <Template Context="class_">
+                @class_.Type.ToString()
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="Teacher" Title="Teacher">
+            <Template Context="class_">
+                @class_.Teacher.Name
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="Auditory" Title="Auditory">
+            <Template Context="class_">
+                @class_.Auditory?.Number
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="Group" Title="Group">
+            <Template Context="class_">
+                @(class_.Group.Number == 0 ? "Lection" : class_.Group.Number.ToString())
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="DayTime" Title="Day">
+            <Template Context="class_">
+                @class_.DayTime?.Day.ToString()
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="DayTime" Title="Time">
+            <Template Context="class_">
+                @TimeToTime(class_.DayTime?.Number)
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Class" Property="Group" Title="Students">
+            <Template Context="class_">
+                @class_.Group.Count
+            </Template>
+        </RadzenGridColumn>
+    </Columns>
+</RadzenGrid>
+
+@code {
+
+    [Parameter]
+    public int SubjectId { get; set; }
+
+    private List<Class> _classes;
+
+    protected override void OnInitialized()
+    {
+        _classes = Context.Classes
+            .Where(c => c.SubjectId == SubjectId)
+            .Include(c => c.Teacher)
+            .Include(c => c.Group)
+            .Include(c => c.Auditory).DefaultIfEmpty()
+            .Include(c => c.Subject)
+            .Include(c => c.DayTime).DefaultIfEmpty()
+            .ToList();
+    }
+
+    private static string TimeToTime(int? time)
+    {
+        return time == null ? null :
+            time.Value switch {
+                1 => "08:30",
+                2 => "10:00",
+                3 => "11:40",
+                4 => "13:30",
+                5 => "15:00",
+                6 => "16:30",
+                7 => "18:00",
+                _ => "NONE"
+                };
+    }
+
+}

@@ -1,0 +1,83 @@
+﻿@page "/"
+@using Schedule.DAL.Context
+@using Schedule.DAL.Entities
+@using Schedule.Blazor.Services
+@inject ScheduleContext Context
+@inject ScheduleService Service
+
+<h1>Schedule</h1>
+<RadzenButton Click="@(async () => await LoadClasses())" Text="Calculate Schedule" Style="display:block; width: 200px; height: 80px; margin: 0 auto;"/>
+@if (_classes != null)
+{
+    <hr/>
+    <RadzenGrid Data="_classes" TItem="Class">
+        <Columns>
+            <RadzenGridColumn TItem="Class" Property="DayTime" Title="Day">
+                <Template Context="class_">
+                    @class_.DayTime.Day.ToString()
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="DayTime" Title="Time">
+                <Template Context="class_">
+                    @TimeToTime(class_.DayTime.Number)
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Group" Title="Group">
+                <Template Context="class_">
+                    @class_.Group.Number
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Subject" Title="Specialty">
+                <Template Context="class_">
+                    @class_.Subject.Specialty.Name
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Subject" Title="Subject">
+                <Template Context="class_">
+                    @class_.Subject.Name
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Teacher" Title="Teacher">
+                <Template Context="class_">
+                    @class_.Teacher.Name
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Auditory" Title="Auditory">
+                <Template Context="class_">
+                    @class_.Auditory.Number
+                </Template>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Class" Property="Type" Title="Type">
+                <Template Context="class_">
+                    @class_.Type.ToString()
+                </Template>
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+}
+
+@code {
+
+    private IEnumerable<Class> _classes;
+
+    private async Task LoadClasses()
+    {
+        _classes = await Service.Classes();
+    }
+
+    private static string TimeToTime(int time)
+    {
+        return
+            time switch {
+                1 => "08:30",
+                2 => "10:00",
+                3 => "11:40",
+                4 => "13:30",
+                5 => "15:00",
+                6 => "16:30",
+                7 => "18:00",
+                _ => "NONE"
+                };
+    }
+
+}

@@ -1,0 +1,35 @@
+﻿@page "/subjects"
+@using Schedule.DAL.Context
+@using Schedule.DAL.Entities
+@using Microsoft.EntityFrameworkCore
+@inject ScheduleContext Context
+
+<h1>Subjects</h1>
+<hr/>
+<RadzenGrid EmptyText="No subjects" Data="_subjects" TItem="Subject">
+    <Template Context="subject">
+        <SubjectClasses SubjectId="@subject.Id"/>
+    </Template>
+    <Columns>
+        <RadzenGridColumn TItem="Subject" Property="Name" Title="Name"/>
+        <RadzenGridColumn TItem="Subject" Property="Specialty" Title="Specialty">
+            <Template Context="subject">
+                @subject.Specialty.Name
+            </Template>
+        </RadzenGridColumn>
+    </Columns>
+</RadzenGrid>
+
+@code {
+
+    private List<Subject> _subjects;
+
+    protected override void OnInitialized()
+    {
+        _subjects = Context.Subjects
+            .Include(s => s.Classes)
+            .Include(s => s.Specialty)
+            .OrderBy(s => s.Name).ToList();
+    }
+
+}
