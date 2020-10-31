@@ -10,6 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Schedule.CSP\Schedule.CSP.csproj" />
       <ProjectReference Include="..\Schedule.DAL\Schedule.DAL.csproj" />
       <ProjectReference Include="..\Schedule.Genetic\Schedule.Genetic.csproj" />
     </ItemGroup>

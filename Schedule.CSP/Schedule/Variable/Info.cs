@@ -1,6 +1,6 @@
 using Schedule.DAL.Entities;
 
-namespace Schedule.Genetic.Schedule
+namespace Schedule.CSP.Schedule.Variable
 {
     public class Info
     {
