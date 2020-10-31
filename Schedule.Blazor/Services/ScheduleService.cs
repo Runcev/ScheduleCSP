@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Schedule.CSP.CSP;
+using Schedule.CSP.Schedule;
+using Schedule.CSP.Schedule.Variable;
 using Schedule.DAL.Context;
 using Schedule.DAL.Entities;
-using Schedule.Genetic.Genetic;
-using Schedule.Genetic.Schedule;
+using Info = Schedule.CSP.Schedule.Variable.Info;
 
 namespace Schedule.Blazor.Services
 {
@@ -14,37 +16,33 @@ namespace Schedule.Blazor.Services
     {
         private static readonly Random Rng = new Random();
 
+        private InfoVar[] GetInfos()
+        {
+            return _context.Classes
+                .Include(c => c.Group)
+                .Include(c => c.Teacher)
+                .Include(c => c.Subject)
+                .Select(c => new InfoVar(new Info(c.Teacher, c.Group, c))).ToArray();
+        }
+        
         public async Task<IEnumerable<Class>> Classes()
         {
-            var alphabet = new List<(int auditoryId, int dayTimeId)>();
+            var csp = new ScheduleCSP(GetInfos(), _context);
 
-            foreach (var dayTime in _context.DayTimes)
-            {
-                foreach (var auditory in _context.Auditories)
-                {
-                    alphabet.Add((auditory.Id, dayTime.Id));
-                }
-            }
+            var scheduleAssignment = new BacktrackingSolver<InfoVar, (int auditoryId, int dayTimeId)>().Solve(csp);
 
-            var individualLength = _context.Classes.Count();
-
-            var genetic = new GeneticAlgorithm<(int auditoryId, int dayTimeId)>(individualLength, alphabet, 0.05);
-            var fitnessFn = new ScheduleFitnessFn(_context);
-
-            var schedule = genetic.Algorithm(RandomInitialPopulation(100, individualLength), fitnessFn,
-                fitnessFn.GoalTest);
-
-            var classes = fitnessFn.Infos.Select(i => i.Class).ToArray();
+            var result = scheduleAssignment.GetVariableAndValues().ToArray();
+            
+            var classes = result.Select(c => c.variable.Info.Class).ToArray();
 
             for (int i = 0; i < classes.Count(); i++)
             {
-                classes[i].AuditoryId = schedule.Representation[i].auditoryId;
-                classes[i].DayTimeId = schedule.Representation[i].dayTimeId;
+                classes[i].AuditoryId = result[i].value.auditoryId;
+                classes[i].DayTimeId = result[i].value.dayTimeId;
             }
 
             await _context.SaveChangesAsync();
-
-
+            
             return _context.Classes
                 .Include(c => c.Auditory)
                 .Include(c => c.Group)
@@ -60,32 +58,6 @@ namespace Schedule.Blazor.Services
         public ScheduleService(ScheduleContext context)
         {
             _context = context;
-        }
-
-        private List<Individual<(int auditoryId, int dayTimeId)>> RandomInitialPopulation(int count,
-            int individualLength)
-        {
-            var auditoryIds = _context.Auditories.Select(a => a.Id).ToArray();
-            var dayTimeIds = _context.DayTimes.Select(dt => dt.Id).ToArray();
-
-            (int auditoryId, int dayTimeId) GetRandomPair() => (auditoryIds[Rng.Next(auditoryIds.Length)],
-                dayTimeIds[Rng.Next(dayTimeIds.Length)]);
-
-            var population = new List<Individual<(int auditoryId, int dayTimeId)>>();
-
-            for (int i = 0; i < count; i++)
-            {
-                var individuals = new List<(int auditoryId, int dayTimeId)>();
-
-                for (int j = 0; j < individualLength; j++)
-                {
-                    individuals.Add(GetRandomPair());
-                }
-
-                population.Add(new Individual<(int auditoryId, int dayTimeId)>(individuals));
-            }
-
-            return population;
         }
     }
 }
